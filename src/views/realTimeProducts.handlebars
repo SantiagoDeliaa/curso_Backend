@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos en Tiempo Real</title>
+    <link rel="stylesheet" href="/path_to_your_stylesheet.css">
+</head>
+<body>
+    <h1>Lista de Productos en Tiempo Real</h1>
+    <ul id="product-list">
+        {{#each products}}
+        <li id="product-{{this.id}}">
+            <h2>{{this.title}}</h2>
+            <p>{{this.description}}</p>
+            <p>Precio: ${{this.price}}</p>
+            <!-- Más detalles del producto -->
+        </li>
+        {{/each}}
+    </ul>
+
+    <!-- cliente Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const socket = io();
+
+            socket.on('product-created', (product) => {
+                const productList = document.getElementById('product-list');
+                const productItem = document.createElement('li');
+                productItem.id = `product-${product.id}`;
+                productItem.innerHTML = `
+                    <h2>${product.title}</h2>
+                    <p>${product.description}</p>
+                    <p>Precio: $${product.price}</p>
+                    <!-- Más detalles del producto -->
+                `;
+                productList.appendChild(productItem);
+            });
+
+            socket.on('product-deleted', (productId) => {
+                const productItem = document.getElementById(`product-${productId}`);
+                productItem.remove();
+            });
+        });
+    </script>
+</body>
+</html>
